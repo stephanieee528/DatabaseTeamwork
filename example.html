@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>832工程贫困县可视化分析系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #e6f7ff 0%, #f0fff4 100%);
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c5282 0%, #3182ce 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at top right, rgba(255,255,255,0.2) 0%, transparent 30%);
+            pointer-events: none;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 26px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: 0.5px;
+        }
+        
+        .logo::before {
+            content: "📊";
+            font-size: 32px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        
+        .nav-menu a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        
+        .nav-menu a:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .nav-menu a.active {
+            background: rgba(255,255,255,0.25);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .welcome-section {
+            background: linear-gradient(135deg, rgba(44, 82, 130, 0.85) 0%, rgba(49, 130, 206, 0.9) 100%);
+            color: white;
+            padding: 50px 40px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.18);
+        }
+        
+        .welcome-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.05)"/></svg>');
+            background-size: cover;
+            pointer-events: none;
+        }
+        
+        .welcome-section h1 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            position: relative;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .welcome-section p {
+            font-size: 20px;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 30px 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.85);
+        }
+        
+        .stat-number {
+            font-size: 42px;
+            font-weight: 800;
+            color: #2b6cb0;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #2b6cb0 0%, #38a169 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            color: #4a5568;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .map-container {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        
+        .map-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(230, 247, 255, 0.6) 0%, rgba(240, 255, 244, 0.6) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #4a5568;
+            border: 2px dashed rgba(66, 153, 225, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .map-placeholder::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.2)"/></svg>');
+            background-size: cover;
+            pointer-events: none;
+        }
+        
+        .county-detail {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        
+        .county-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(66, 153, 225, 0.2);
+        }
+        
+        .county-title {
+            font-size: 32px;
+            color: #2c5282;
+            font-weight: 700;
+        }
+        
+        .county-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #3182ce;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
+        }
+        
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+        }
+        
+        .info-card h3 {
+            color: #2c5282;
+            margin-bottom: 15px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-container {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        
+        .chart-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(230, 247, 255, 0.6) 0%, rgba(240, 255, 244, 0.6) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a5568;
+            font-size: 20px;
+            border: 2px dashed rgba(56, 161, 105, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-placeholder::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.2)"/></svg>');
+            background-size: cover;
+            pointer-events: none;
+        }
+        
+        .form-container {
+            max-width: 450px;
+            margin: 40px auto;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c5282;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.8);
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #3182ce;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.3);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #2b6cb0 0%, #38a169 100%);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .alert-item {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 5px solid #e53e3e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .alert-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+        }
+        
+        .alert-item.warning {
+            border-left-color: #dd6b20;
+        }
+        
+        .alert-item.success {
+            border-left-color: #38a169;
+        }
+        
+        .user-table {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .user-table th,
+        .user-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(203, 213, 224, 0.5);
+        }
+        
+        .user-table th {
+            background: linear-gradient(135deg, #2c5282 0%, #3182ce 100%);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .user-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .user-table tr:hover {
+            background: rgba(66, 153, 225, 0.05);
+        }
+        
+        .filter-bar {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        
+        .filter-bar select,
+        .filter-bar input {
+            padding: 10px 15px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 16px;
+            background: rgba(255,255,255,0.8);
+            transition: all 0.3s ease;
+        }
+        
+        .filter-bar select:focus,
+        .filter-bar input:focus {
+            outline: none;
+            border-color: #3182ce;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.3);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.85);
+            padding: 35px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #718096;
+            transition: all 0.3s ease;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .close:hover {
+            color: #e53e3e;
+            background: rgba(229, 62, 62, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .county-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                padding: 15px 0;
+            }
+            
+            .welcome-section {
+                padding: 30px 20px;
+            }
+            
+            .welcome-section h1 {
+                font-size: 32px;
+            }
+            
+            .welcome-section p {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">832工程贫困县可视化分析系统</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#" onclick="showPage('home')" class="nav-link active">首页</a></li>
+                    <li><a href="#" onclick="showPage('county')" class="nav-link">县详情</a></li>
+                    <li><a href="#" onclick="showPage('analysis')" class="nav-link">数据分析</a></li>
+                    <li><a href="#" onclick="showPage('alerts')" class="nav-link">警报管理</a></li>
+                    <li><a href="#" onclick="showPage('login')" class="nav-link">登录/注册</a></li>
+                    <li><a href="#" onclick="showPage('users')" class="nav-link">用户管理</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 首页 -->
+        <div id="home" class="page active">
+            <div class="welcome-section">
+                <h1>欢迎来到832工程贫困县可视化分析系统</h1>
+                <p>实时掌握贫困县动态数据，助力精准扶贫决策</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">832</div>
+                    <div class="stat-label">贫困县总数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">156</div>
+                    <div class="stat-label">已脱贫县数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">98.5%</div>
+                    <div class="stat-label">扶贫覆盖率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">12.8亿</div>
+                    <div class="stat-label">扶贫资金投入（元）</div>
+                </div>
+            </div>
+            
+            <div class="map-container">
+                <div class="map-placeholder">
+                    🗺️ 交互式地图加载中...<br>
+                    <small>显示全国832个贫困县分布情况</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 县详情页 -->
+        <div id="county" class="page">
+            <div class="county-detail">
+                <div class="county-header">
+                    <h2 class="county-title">📍 示例县 - 详细信息</h2>
+                    <button class="btn" style="width: auto;" onclick="alert('已添加到关注列表')">+ 关注该县</button>
+                </div>
+                
+                <div class="county-info">
+                    <div class="info-card">
+                        <h3>基本信息</h3>
+                        <p><strong>所属省份：</strong>示例省</p>
+                        <p><strong>行政级别：</strong>县级</p>
+                        <p><strong>人口数量：</strong>45.6万人</p>
+                        <p><strong>面积：</strong>2,845平方公里</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>贫困指标</h3>
+                        <p><strong>贫困发生率：</strong>3.2%</p>
+                        <p><strong>脱贫户数：</strong>12,456户</p>
+                        <p><strong>脱贫人口：</strong>48,234人</p>
+                        <p><strong>脱贫时间：</strong>2020年12月</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>经济指标</h3>
+                        <p><strong>GDP总量：</strong>128.5亿元</p>
+                        <p><strong>人均可支配收入：</strong>18,245元</p>
+                        <p><strong>主导产业：</strong>农业、旅游业</p>
+                        <p><strong>投资总额：</strong>15.8亿元</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>政策支持</h3>
+                        <p><strong>扶贫项目：</strong>156个</p>
+                        <p><strong>资金投入：</strong>8.9亿元</p>
+                        <p><strong>产业项目：</strong>45个</p>
+                        <p><strong>教育支持：</strong>全覆盖</p>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-placeholder">
+                        📈 经济指标趋势图<br>
+                        <small>显示近5年GDP、收入等关键指标变化</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据分析页 -->
+        <div id="analysis" class="page">
+            <h2 style="margin-bottom: 20px;">数据分析中心</h2>
+            
+            <div class="filter-bar">
+                <select>
+                    <option>选择省份</option>
+                    <option>示例省</option>
+                    <option>测试省</option>
+                </select>
+                <select>
+                    <option>选择年份</option>
+                    <option>2023年</option>
+                    <option>2022年</option>
+                    <option>2021年</option>
+                </select>
+                <select>
+                    <option>选择指标</option>
+                    <option>GDP</option>
+                    <option>贫困发生率</option>
+                    <option>投资额</option>
+                </select>
+                <button class="btn" style="width: auto; padding: 10px 20px;">生成报表</button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+                <div class="chart-container" style="height: 300px;">
+                    <div class="chart-placeholder">
+                        📊 柱状图<br>
+                        <small>各县GDP对比分析</small>
+                    </div>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <div class="chart-placeholder">
+                        🥧 饼图<br>
+                        <small>产业结构分布</small>
+                    </div>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <div class="chart-placeholder">
+                        🔥 热力图<br>
+                        <small>贫困发生率分布</small>
+                    </div>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <div class="chart-placeholder">
+                        📈 折线图<br>
+                        <small>脱贫趋势分析</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 警报管理页 -->
+        <div id="alerts" class="page">
+            <h2 style="margin-bottom: 20px;">警报管理中心</h2>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px;">警报规则设置</h3>
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <label>贫困发生率超过：</label>
+                    <input type="number" value="5" style="width: 80px;"> %
+                    <label>连续：</label>
+                    <input type="number" value="3" style="width: 60px;"> 个月
+                    <button class="btn" style="width: auto; padding: 10px 20px;">添加规则</button>
+                </div>
+            </div>
+            
+            <h3 style="margin-bottom: 15px;">警报列表</h3>
+            
+            <div class="alert-item">
+                <div>
+                    <strong>⚠️ 高风险警报</strong> - 示例县贫困发生率反弹至5.2%
+                    <br><small>2024-01-15 14:30</small>
+                </div>
+                <button class="btn" style="width: auto; padding: 8px 15px; font-size: 14px;">查看详情</button>
+            </div>
+            
+            <div class="alert-item warning">
+                <div>
+                    <strong>⚡ 中风险警报</strong> - 测试县连续2个月收入下降
+                    <br><small>2024-01-14 09:15</small>
+                </div>
+                <button class="btn" style="width: auto; padding: 8px 15px; font-size: 14px;">查看详情</button>
+            </div>
+            
+            <div class="alert-item success">
+                <div>
+                    <strong>✅ 低风险提示</strong> - 示范县各项指标正常
+                    <br><small>2024-01-13 16:45</small>
+                </div>
+                <button class="btn" style="width: auto; padding: 8px 15px; font-size: 14px;">查看详情</button>
+            </div>
+        </div>
+
+        <!-- 登录/注册页 -->
+        <div id="login" class="page">
+            <div class="form-container">
+                <h2 class="form-title">用户登录</h2>
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" placeholder="请输入用户名" required>
+                    </div>
+                    <div class="form-group">
+                        <label>密码</label>
+                        <input type="password" placeholder="请输入密码" required>
+                    </div>
+                    <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
+                        <label style="margin: 0;">
+                            <input type="checkbox" style="width: auto; margin-right: 5px;">
+                            记住我
+                        </label>
+                        <a href="#" onclick="alert('请联系管理员重置密码')">忘记密码？</a>
+                    </div>
+                    <button type="submit" class="btn">登录</button>
+                    <p style="text-align: center; margin-top: 15px;">
+                        还没有账号？<a href="#" onclick="showRegister()">立即注册</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- 用户管理页 -->
+        <div id="users" class="page">
+            <h2 style="margin-bottom: 20px;">用户管理中心</h2>
+            
+            <div class="filter-bar">
+                <input type="text" placeholder="搜索用户名或邮箱">
+                <select>
+                    <option>所有角色</option>
+                    <option>管理员</option>
+                    <option>普通用户</option>
+                    <option>访客</option>
+                </select>
+                <button class="btn" style="width: auto; padding: 10px 20px;">搜索</button>
+                <button class="btn" style="width: auto; padding: 10px 20px;" onclick="showAddUserModal()">+ 添加用户</button>
+            </div>
+            
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>用户名</th>
+                        <th>邮箱</th>
+                        <th>角色</th>
+                        <th>状态</th>
+                        <th>最后登录</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>admin</td>
+                        <td>admin@example.com</td>
+                        <td>管理员</td>
+                        <td style="color: green;">活跃</td>
+                        <td>2024-01-15 14:30</td>
+                        <td>
+                            <button class="btn" style="width: auto; padding: 5px 10px; font-size: 12px;">编辑</button>
+                            <button class="btn" style="width: auto; padding: 5px 10px; font-size: 12px; background: #e74c3c;">禁用</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>user1</td>
+                        <td>user1@example.com</td>
+                        <td>普通用户</td>
+                        <td style="color: green;">活跃</td>
+                        <td>2024-01-14 10:20</td>
+                        <td>
+                            <button class="btn" style="width: auto; padding: 5px 10px; font-size: 12px;">编辑</button>
+                            <button class="btn" style="width: auto; padding: 5px 10px; font-size: 12px; background: #e74c3c;">禁用</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>guest</td>
+                        <td>guest@example.com</td>
+                        <td>访客</td>
+                        <td style="color: gray;">未激活</td>
+                        <td>从未登录</td>
+                        <td>
+                            <button class="btn" style="width: auto; padding: 5px 10px; font-size: 12px;">编辑</button>
+                            <button class="btn" style="width: auto; padding: 5px 10px; font-size: 12px;">激活</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 class="form-title">用户注册</h2>
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" placeholder="请输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" placeholder="请输入邮箱" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" placeholder="请输入密码" required>
+                </div>
+                <div class="form-group">
+                    <label>确认密码</label>
+                    <input type="password" placeholder="请再次输入密码" required>
+                </div>
+                <div class="form-group">
+                    <label>用户角色</label>
+                    <select style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option>普通用户</option>
+                        <option>数据分析师</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">注册</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加用户模态框 -->
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 class="form-title">添加新用户</h2>
+            <form onsubmit="handleAddUser(event)">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" placeholder="请输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" placeholder="请输入邮箱" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" placeholder="请输入初始密码" required>
+                </div>
+                <div class="form-group">
+                    <label>用户角色</label>
+                    <select style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option>普通用户</option>
+                        <option>数据分析师</option>
+                        <option>管理员</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">添加用户</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 页面切换功能
+        function showPage(pageId) {
+            // 隐藏所有页面
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            
+            // 显示选中的页面
+            document.getElementById(pageId).classList.add('active');
+            
+            // 更新导航栏激活状态
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => link.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        // 登录处理
+        function handleLogin(event) {
+            event.preventDefault();
+            alert('登录成功！即将跳转到首页...');
+            showPage('home');
+        }
+        
+        // 注册处理
+        function handleRegister(event) {
+            event.preventDefault();
+            alert('注册成功！请登录...');
+            closeModal();
+        }
+        
+        // 添加用户处理
+        function handleAddUser(event) {
+            event.preventDefault();
+            alert('用户添加成功！');
+            closeModal();
+        }
+        
+        // 显示注册模态框
+        function showRegister() {
+            document.getElementById('registerModal').style.display = 'block';
+        }
+        
+        // 显示添加用户模态框
+        function showAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'block';
+        }
+        
+        // 关闭模态框
+        function closeModal() {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => modal.style.display = 'none');
+        }
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+        
+        // 模拟数据更新
+        setInterval(() => {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(number => {
+                const currentValue = number.textContent;
+                if (currentValue.includes('亿')) {
+                    const baseValue = parseFloat(currentValue);
+                    const newValue = (baseValue + Math.random() * 0.1).toFixed(1);
+                    number.textContent = newValue + '亿';
+                }
+            });
+        }, 5000);
+        
+        // 添加一些交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为统计卡片添加点击效果
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-5px)';
+                    }, 100);
+                });
+            });
+            
+            // 为表格行添加悬停效果
+            const tableRows = document.querySelectorAll('.user-table tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#f8f9fa';
+                });
+                row.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

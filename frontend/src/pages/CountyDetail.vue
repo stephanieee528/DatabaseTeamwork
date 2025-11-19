@@ -1,500 +1,159 @@
 <template>
-  <div class="county-detail-container">
-    <!-- 顶部导航 -->
-    <header class="detail-header">
-      <el-button @click="$router.push('/')" icon="ArrowLeft" />
-      <h1>{{ countyInfo.name }} 脱贫详情</h1>
-    </header>
-
-    <!-- 基础信息卡片 -->
-    <div class="basic-info-container">
-      <el-card>
-        <div class="info-grid">
-          <div class="info-item">
-            <span class="info-label">所属省份</span>
-            <span class="info-value">{{ countyInfo.province }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">摘帽年份</span>
-            <span class="info-value">{{ countyInfo.delistingYear || '未摘帽' }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">总人口(万人)</span>
-            <span class="info-value">{{ countyInfo.population }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">总面积(平方公里)</span>
-            <span class="info-value">{{ countyInfo.area }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">主要产业</span>
-            <span class="info-value">{{ countyInfo.mainIndustries.join(', ') }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">脱贫主要措施</span>
-            <span class="info-value">{{ countyInfo.povertyMeasures.join(', ') }}</span>
-          </div>
-        </div>
-      </el-card>
+  <div class="county-detail">
+    <div class="county-header">
+      <h2 class="county-title">📍 {{ countyData.name }} - 详细信息</h2>
+      <button class="btn" @click="followCounty">+ 关注该县</button>
     </div>
 
-    <!-- 经济指标时间序列图表 -->
-    <div class="economic-chart-container">
-      <el-card>
-        <div slot="header">
-          <h2>经济指标变化趋势 (2016-2020)</h2>
-        </div>
-        <div id="economic-trend" class="chart-container"></div>
-      </el-card>
-    </div>
-
-    <!-- 产业结构分析 -->
-    <div class="industry-analysis-container">
-      <div class="industry-pie-container">
-        <el-card>
-          <div slot="header">
-            <h2>2020年三大产业占比</h2>
-          </div>
-          <div id="industry-pie" class="chart-container"></div>
-        </el-card>
-      </div>
-      <div class="industry-trend-container">
-        <el-card>
-          <div slot="header">
-            <h2>产业结构变化趋势</h2>
-          </div>
-          <div id="industry-trend" class="chart-container"></div>
-        </el-card>
+    <div class="county-info">
+      <div class="info-card" v-for="info in countyInfo" :key="info.title">
+        <h3>{{ info.title }}</h3>
+        <p v-for="(value, key) in info.details" :key="key">
+          <strong>{{ key }}：</strong>{{ value }}
+        </p>
       </div>
     </div>
 
-    <!-- 农产品产量表格 -->
-    <div class="agriculture-table-container">
-      <el-card>
-        <div slot="header">
-          <h2>农产品产量年度对比 (单位: 万吨)</h2>
-        </div>
-        <el-table :data="agricultureData" border>
-          <el-table-column prop="product" label="农产品" />
-          <el-table-column prop="2016" label="2016年" />
-          <el-table-column prop="2017" label="2017年" />
-          <el-table-column prop="2018" label="2018年" />
-          <el-table-column prop="2019" label="2019年" />
-          <el-table-column prop="2020" label="2020年" />
-          <el-table-column label="增长率" formatter="formatGrowthRate" />
-        </el-table>
-      </el-card>
-    </div>
-
-    <!-- 工业品产量数据 -->
-    <div class="industry-output-container">
-      <el-card>
-        <div slot="header">
-          <h2>工业品产量数据 (2020年)</h2>
-        </div>
-        <div id="industry-output" class="chart-container"></div>
-      </el-card>
+    <div class="chart-container">
+      <div class="chart-placeholder">
+        📈 经济指标趋势图<br />
+        <small>显示近5年GDP、收入等关键指标变化</small>
+      </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted } from 'vue';
-import * as echarts from 'echarts';
-import { useRoute } from 'vue-router';
 
-const route = useRoute();
-const countyName = route.params.name as string;
+const countyData = ref({ name: '示例县' });
+const countyInfo = ref([]);
 
-// 模拟县域数据 - 实际项目中应从API获取
-const countyInfo = ref({
-  name: countyName || '某贫困县',
-  province: '贵州省',
-  delistingYear: 2020,
-  population: 58.2,
-  area: 2874,
-  mainIndustries: ['农业', '旅游业', '轻工业'],
-  povertyMeasures: ['产业扶持', '教育扶贫', '就业培训', '异地搬迁']
-});
+const followCounty = () => {
+  alert('已添加到关注列表');
+};
 
-// 经济指标数据
-const economicData = ref({
-  years: [2016, 2017, 2018, 2019, 2020],
-  gdp: [86.5, 95.2, 108.7, 120.5, 135.8], // 单位: 亿元
-  perCapitaIncome: [6850, 7580, 8320, 9250, 10560], // 单位: 元
-  fiscalRevenue: [6.2, 7.1, 8.5, 9.8, 11.2] // 单位: 亿元
-});
-
-// 产业结构数据
-const industryData = ref({
-  years: [2016, 2017, 2018, 2019, 2020],
-  primary: [35, 32, 29, 26, 23], // 第一产业占比
-  secondary: [25, 27, 29, 31, 33], // 第二产业占比
-  tertiary: [40, 41, 42, 43, 44] // 第三产业占比
-});
-
-// 2020年产业占比
-const industryPieData = ref([
-  { name: '第一产业', value: 23 },
-  { name: '第二产业', value: 33 },
-  { name: '第三产业', value: 44 }
-]);
-
-// 农产品数据
-const agricultureData = ref([
-  { product: '粮食', 2016: 18.5, 2017: 19.2, 2018: 20.1, 2019: 21.3, 2020: 22.5 },
-  { product: '蔬菜', 2016: 12.3, 2017: 13.5, 2018: 15.2, 2019: 16.8, 2020: 18.5 },
-  { product: '水果', 2016: 5.2, 2017: 6.1, 2018: 7.5, 2019: 8.8, 2020: 10.2 },
-  { product: '肉类', 2016: 3.8, 2017: 4.2, 2018: 4.5, 2019: 4.9, 2020: 5.3 }
-]);
-
-// 工业品数据
-const industryOutputData = ref([
-  { name: '发电量', value: 12.5 },
-  { name: '水泥', value: 8.3 },
-  { name: '化肥', value: 3.2 },
-  { name: '食品加工', value: 15.6 },
-  { name: '纺织', value: 4.8 },
-  { name: '电子产品', value: 2.1 }
-]);
-
-// 图表实例
-let economicTrendChart: echarts.ECharts;
-let industryPieChart: echarts.ECharts;
-let industryTrendChart: echarts.ECharts;
-let industryOutputChart: echarts.ECharts;
-
-// 初始化经济指标趋势图
-const initEconomicTrend = () => {
-  const dom = document.getElementById('economic-trend');
-  if (dom) {
-    economicTrendChart = echarts.init(dom);
-    
-    const option = {
-      tooltip: {
-        trigger: 'axis'
-      },
-      legend: {
-        data: ['GDP(亿元)', '人均可支配收入(元)', '财政收入(亿元)']
-      },
-      grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true
-      },
-      xAxis: {
-        type: 'category',
-        boundaryGap: false,
-        data: economicData.value.years
-      },
-      yAxis: {
-        type: 'value'
-      },
-      series: [
-        {
-          name: 'GDP(亿元)',
-          type: 'line',
-          data: economicData.value.gdp,
-          yAxisIndex: 0
+onMounted(async () => {
+  try {
+    const response = await fetch('/api/county-detail');
+    const data = await response.json();
+    countyData.value = data;
+    countyInfo.value = [
+      {
+        title: '基本信息',
+        details: {
+          所属省份: data.province,
+          行政级别: data.level,
+          人口数量: `${data.population}万人`,
+          面积: `${data.area}平方公里`,
         },
-        {
-          name: '人均可支配收入(元)',
-          type: 'line',
-          data: economicData.value.perCapitaIncome,
-          yAxisIndex: 1
+      },
+      {
+        title: '贫困指标',
+        details: {
+          贫困发生率: `${data.povertyRate}%`,
+          脱贫户数: `${data.delistedHouseholds}户`,
+          脱贫人口: `${data.delistedPopulation}人`,
+          脱贫时间: data.delistedDate,
         },
-        {
-          name: '财政收入(亿元)',
-          type: 'line',
-          data: economicData.value.fiscalRevenue,
-          yAxisIndex: 0
-        }
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          name: '亿元'
+      },
+      {
+        title: '经济指标',
+        details: {
+          GDP总量: `${data.gdp}亿元`,
+          人均可支配收入: `${data.income}元`,
+          主导产业: data.industries.join('、'),
+          投资总额: `${data.investment}亿元`,
         },
-        {
-          type: 'value',
-          name: '元',
-          position: 'right',
-          offset: 0,
-          axisLine: {
-            lineStyle: {
-              color: '#ff4500'
-            }
-          },
-          axisLabel: {
-            formatter: '{value}'
-          }
-        }
-      ]
-    };
-    
-    economicTrendChart.setOption(option);
+      },
+      {
+        title: '政策支持',
+        details: {
+          扶贫项目: `${data.projects}个`,
+          资金投入: `${data.funding}亿元`,
+          产业项目: `${data.industryProjects}个`,
+          教育支持: data.educationSupport,
+        },
+      },
+    ];
+  } catch (error) {
+    console.error('Failed to fetch county details:', error);
   }
-};
-
-// 初始化产业结构饼图
-const initIndustryPie = () => {
-  const dom = document.getElementById('industry-pie');
-  if (dom) {
-    industryPieChart = echarts.init(dom);
-    
-    const option = {
-      tooltip: {
-        trigger: 'item'
-      },
-      legend: {
-        orient: 'vertical',
-        left: 10
-      },
-      series: [
-        {
-          name: '产业占比',
-          type: 'pie',
-          radius: ['40%', '70%'],
-          avoidLabelOverlap: false,
-          itemStyle: {
-            borderRadius: 10,
-            borderColor: '#fff',
-            borderWidth: 2
-          },
-          label: {
-            show: false,
-            position: 'center'
-          },
-          emphasis: {
-            label: {
-              show: true,
-              fontSize: 18,
-              fontWeight: 'bold'
-            }
-          },
-          labelLine: {
-            show: false
-          },
-          data: industryPieData.value
-        }
-      ]
-    };
-    
-    industryPieChart.setOption(option);
-  }
-};
-
-// 初始化产业结构趋势图
-const initIndustryTrend = () => {
-  const dom = document.getElementById('industry-trend');
-  if (dom) {
-    industryTrendChart = echarts.init(dom);
-    
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow'
-        }
-      },
-      legend: {
-        data: ['第一产业', '第二产业', '第三产业']
-      },
-      grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true
-      },
-      xAxis: {
-        type: 'category',
-        data: industryData.value.years
-      },
-      yAxis: {
-        type: 'value',
-        axisLabel: {
-          formatter: '{value}%'
-        }
-      },
-      series: [
-        {
-          name: '第一产业',
-          type: 'bar',
-          stack: 'total',
-          emphasis: {
-            focus: 'series'
-          },
-          data: industryData.value.primary
-        },
-        {
-          name: '第二产业',
-          type: 'bar',
-          stack: 'total',
-          emphasis: {
-            focus: 'series'
-          },
-          data: industryData.value.secondary
-        },
-        {
-          name: '第三产业',
-          type: 'bar',
-          stack: 'total',
-          emphasis: {
-            focus: 'series'
-          },
-          data: industryData.value.tertiary
-        }
-      ]
-    };
-    
-    industryTrendChart.setOption(option);
-  }
-};
-
-// 初始化工业品产量图表
-const initIndustryOutput = () => {
-  const dom = document.getElementById('industry-output');
-  if (dom) {
-    industryOutputChart = echarts.init(dom);
-    
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow'
-        }
-      },
-      grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true
-      },
-      xAxis: {
-        type: 'value',
-        boundaryGap: [0, 0.01]
-      },
-      yAxis: {
-        type: 'category',
-        data: industryOutputData.value.map(item => item.name)
-      },
-      series: [
-        {
-          name: '产量(万吨)',
-          type: 'bar',
-          data: industryOutputData.value.map(item => item.value)
-        }
-      ]
-    };
-    
-    industryOutputChart.setOption(option);
-  }
-};
-
-// 格式化增长率
-const formatGrowthRate = (row: any) => {
-  const growth = ((row[2020] - row[2016]) / row[2016] * 100).toFixed(2);
-  return `${growth}%`;
-};
-
-// 初始化
-onMounted(() => {
-  initEconomicTrend();
-  initIndustryPie();
-  initIndustryTrend();
-  initIndustryOutput();
-  
-  // 窗口大小变化时重绘图表
-  window.addEventListener('resize', () => {
-    economicTrendChart?.resize();
-    industryPieChart?.resize();
-    industryTrendChart?.resize();
-    industryOutputChart?.resize();
-  });
 });
 </script>
 
 <style scoped>
-.county-detail-container {
-  width: 100%;
-  padding: 20px;
-  box-sizing: border-box;
-  background-color: #f5f7fa;
+.county-detail {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 35px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.detail-header {
+.county-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(66, 153, 225, 0.2);
 }
 
-.detail-header h1 {
-  margin: 0 0 0 10px;
-  color: #1f2329;
+.county-title {
+  font-size: 32px;
+  color: #2c5282;
+  font-weight: 700;
 }
 
-.basic-info-container {
-  margin-bottom: 20px;
-}
-
-.info-grid {
+.county-info {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  padding: 10px 0;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  margin-bottom: 35px;
 }
 
-.info-item {
-  display: flex;
-  flex-direction: column;
+.info-card {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 25px;
+  border-radius: 12px;
+  border-left: 5px solid #3182ce;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s ease;
 }
 
-.info-label {
-  font-size: 14px;
-  color: #606266;
-}
-
-.info-value {
-  font-size: 16px;
-  font-weight: 500;
-  color: #303133;
-  margin-top: 5px;
-}
-
-.economic-chart-container {
-  margin-bottom: 20px;
-  height: 400px;
-}
-
-.industry-analysis-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 20px;
-  height: 400px;
-}
-
-.industry-pie-container, .industry-trend-container {
-  height: 100%;
-}
-
-.agriculture-table-container {
-  margin-bottom: 20px;
-}
-
-.industry-output-container {
-  height: 400px;
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
 }
 
 .chart-container {
-  width: 100%;
-  height: calc(100% - 50px);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 25px;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.el-card {
+.chart-placeholder {
+  width: 100%;
   height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(230, 247, 255, 0.6) 0%,
+    rgba(240, 255, 244, 0.6) 100%
+  );
+  border-radius: 12px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #4a5568;
+  font-size: 20px;
+  border: 2px dashed rgba(56, 161, 105, 0.3);
 }
 </style>

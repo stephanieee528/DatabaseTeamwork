@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-container">
     <header class="dashboard-header">
-      <h1>832工程贫困县脱贫情况可视化分析系统</h1>
+      <h1>832 工程贫困县脱贫情况可视化分析系统</h1>
       <div class="search-container">
         <el-input 
           v-model="searchCounty" 
@@ -56,7 +56,10 @@
           <div slot="header">
             <h2>各省贫困县数量对比</h2>
           </div>
-          <div id="province-bar" class="chart-container"></div>
+          <div v-if="!povertyData.length" class="loading-container">
+            <p>暂无数据，请稍后再试。</p>
+          </div>
+          <div v-else id="province-bar" class="chart-container"></div>
         </el-card>
       </div>
 
@@ -65,7 +68,10 @@
           <div slot="header">
             <h2>贫困县摘帽趋势 (2016-2020)</h2>
           </div>
-          <div id="delisting-trend" class="chart-container"></div>
+          <div v-if="!delistingTrendData.data.length" class="loading-container">
+            <p>暂无数据，请稍后再试。</p>
+          </div>
+          <div v-else id="delisting-trend" class="chart-container"></div>
         </el-card>
       </div>
     </main>
@@ -79,6 +85,7 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { WarningFilled } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
+import { getChartsData } from '@/api';
 
 // 年份范围
 const years = [2016, 2017, 2018, 2019, 2020];
@@ -109,6 +116,9 @@ const delistingTrendData = ref({
   years: [2016, 2017, 2018, 2019, 2020],
   data: [120, 180, 220, 150, 832] // 每年摘帽县数量（832为总贫困县数）
 });
+
+// 图表数据
+const chartsData = ref({});
 
 // 地图数据格式化：将GeoJSON转换为ECharts所需格式（关联贫困县数据）
 const formatMapData = (geojson: any) => {
@@ -457,6 +467,18 @@ const retryLoadMap = () => {
   fetchChinaMapData();
 };
 
+// 获取图表数据
+const fetchChartsData = async () => {
+  try {
+    const response = await getChartsData(currentYear.value);
+    chartsData.value = response.data;
+    console.log('Charts data loaded:', chartsData.value);
+  } catch (error) {
+    console.error('Failed to load charts data:', error);
+    ElMessage.error('图表数据加载失败，请稍后重试');
+  }
+};
+
 // 初始化：请求地图数据 + 初始化其他图表
 onMounted(() => {
   // 1. 优先请求地图数据（异步）
@@ -464,6 +486,8 @@ onMounted(() => {
   // 2. 初始化不依赖地图的图表
   initProvinceBar();
   initDelistingTrend();
+  // 3. 获取图表数据
+  fetchChartsData();
   
   // 窗口大小变化时重绘图表
   window.addEventListener('resize', () => {
@@ -485,6 +509,11 @@ watch(povertyData, () => {
       series: [{ data: formatMapData(chinaMapData.value) }]
     });
   }
+});
+
+// 监听年份变化，重新获取图表数据
+watch(currentYear, () => {
+  fetchChartsData();
 });
 </script>
 

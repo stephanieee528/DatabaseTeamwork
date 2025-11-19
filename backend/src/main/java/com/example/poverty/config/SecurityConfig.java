@@ -11,13 +11,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable() // 开发阶段关闭 CSRF
-                .authorizeHttpRequests()
-                .requestMatchers("/api/auth/**").permitAll() // 登录注册公开
-                .anyRequest().authenticated()               // 其他接口需要 JWT
-                .and()
-                .formLogin().disable() // 禁掉默认登录表单
-                .httpBasic().disable(); // 禁掉 HTTP Basic 弹窗
+                .csrf(csrf -> csrf.disable()) // New lambda-based configuration for disabling CSRF
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form.disable()) // Updated form login configuration
+                .httpBasic(basic -> basic.disable()); // Updated HTTP Basic configuration
 
         return http.build();
     }

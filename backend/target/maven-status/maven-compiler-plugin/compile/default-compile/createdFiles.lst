@@ -2,6 +2,7 @@ com\example\poverty\controller\AlertController.class
 com\example\poverty\model\AlertEvent.class
 com\example\poverty\controller\AuthController.class
 com\example\poverty\model\AlertRule.class
+com\example\poverty\controller\UserController.class
 com\example\poverty\model\PovertyCounty.class
 com\example\poverty\config\SecurityConfig.class
 com\example\poverty\model\EconomicIndicator.class

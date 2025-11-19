@@ -44,4 +44,31 @@ public class DashboardService {
         res.put("map", map);
         return res;
     }
+
+    public Map<String, Object> getChartsData(Integer year) {
+        Map<String, Object> chartsData = new HashMap<>();
+
+        // Example: GDP data for bar chart
+        List<EconomicIndicator> indicators = (year == null) ? indicatorRepo.findAll() : indicatorRepo.findByYear(year);
+        List<Map<String, Object>> gdpData = indicators.stream().map(indicator -> {
+            Map<String, Object> dataPoint = new HashMap<>();
+            dataPoint.put("county", indicator.getCounty().getCountyName());
+            dataPoint.put("gdp", indicator.getGdp());
+            return dataPoint;
+        }).collect(Collectors.toList());
+
+        chartsData.put("gdpBarChart", gdpData);
+
+        // Example: Poverty rate data for heatmap
+        List<Map<String, Object>> povertyData = indicators.stream().map(indicator -> {
+            Map<String, Object> dataPoint = new HashMap<>();
+            dataPoint.put("county", indicator.getCounty().getCountyName());
+            dataPoint.put("povertyRate", indicator.getPovertyRate());
+            return dataPoint;
+        }).collect(Collectors.toList());
+
+        chartsData.put("povertyHeatmap", povertyData);
+
+        return chartsData;
+    }
 }

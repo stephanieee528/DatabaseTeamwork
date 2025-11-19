@@ -43,6 +43,8 @@ export const login = (username: string, password: string) => {
     });
 };
 
+export const loginUser = (credentials: { username: string; password: string }) => api.post('/auth/login', credentials);
+
 // ----------------------
 // 其他接口封装
 // ----------------------
@@ -71,6 +73,20 @@ export const getRules = () => api.get('/alerts/rules');
 
 export const createRule = (r: any) => api.post('/alerts/rules', r);
 
+export const resolveAlertById = (id: number) => api.post(`/alerts/${id}/resolve`);
+
+export const deleteUserById = (id: number) => api.delete(`/users/${id}`);
+
+export const getUsers = () => api.get('/users');
+
+// ----------------------
+// 获取图表数据接口
+// ----------------------
+export const getChartsData = (year?: number) =>
+    api.get(`/dashboard/charts${year ? '?year=' + year : ''}`);
+
+export const getAnalysisData = (year: number) => api.get(`/indicators/charts${year ? '?year=' + year : ''}`);
+
 // 默认导出一个对象，方便在 Vue 中直接 import api from '@/api';
 export default {
     login,
@@ -81,4 +97,9 @@ export default {
     scanAlerts,
     getRules,
     createRule,
+    resolveAlertById,
+    deleteUserById,
+    getUsers,
+    getChartsData,
+    getAnalysisData,
 };

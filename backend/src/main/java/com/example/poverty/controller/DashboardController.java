@@ -16,4 +16,9 @@ public class DashboardController {
     public Map<String,Object> getSummary(@RequestParam(required = false) Integer year) {
         return dashboardService.getSummary(year);
     }
+
+    @GetMapping("/charts")
+    public Map<String, Object> getChartsData(@RequestParam(required = false) Integer year) {
+        return dashboardService.getChartsData(year);
+    }
 }

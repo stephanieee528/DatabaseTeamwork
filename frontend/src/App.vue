@@ -1,17 +1,5 @@
 <template>
-  <div>
-    <header class="app-header">
-      <h1>贫困县数据仪表盘</h1>
-      <nav>
-        <router-link to="/">首页</router-link>
-        <router-link to="/dashboard">仪表盘</router-link>
-        <router-link to="/alerts">告警</router-link>
-        <span v-if="token">
-          <el-button type="text" @click="logout">退出</el-button>
-        </span>
-        <router-link v-else to="/login">登录</router-link>
-      </nav>
-    </header>
+  <div id="app">
     <main>
       <router-view />
     </main>
@@ -19,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -30,27 +18,24 @@ const logout = () => {
   token.value = null;
   router.push('/login');
 };
+
+onMounted(() => {
+  router.push('/home'); // 默认跳转到首页
+});
 </script>
 
 <style scoped>
-.app-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  background-color: #2c3e50;
-  color: #fff;
-}
-.app-header nav a {
-  margin: 0 10px;
-  color: #fff;
-  text-decoration: none;
-}
-.app-header nav a.router-link-active {
-  font-weight: bold;
-  border-bottom: 2px solid #fff;
-}
 main {
   padding: 20px;
+}
+</style>
+
+<style>
+/* 全局样式可以从 example.html 的 <style> 中提取 */
+body {
+  font-family: 'Segoe UI', 'Microsoft YaHei', Roboto, Arial, sans-serif;
+  background: linear-gradient(135deg, #e6f7ff 0%, #f0fff4 100%);
+  color: #2d3748;
+  line-height: 1.6;
 }
 </style>

@@ -24,6 +24,7 @@ public class EconomicIndicator {
     private Double ruralIncomeYoy;
     private Double fiscalRevenue;
     private Double fiscalRevenueYoy;
+    private Double povertyRate;
 
     // Explicit getters/setters in case Lombok is not active
     public Long getId() { return this.id; }
@@ -55,4 +56,12 @@ public class EconomicIndicator {
 
     public Double getFiscalRevenueYoy() { return this.fiscalRevenueYoy; }
     public void setFiscalRevenueYoy(Double fiscalRevenueYoy) { this.fiscalRevenueYoy = fiscalRevenueYoy; }
+
+    public Double getPovertyRate() {
+        return this.povertyRate;
+    }
+
+    public void setPovertyRate(Double povertyRate) {
+        this.povertyRate = povertyRate;
+    }
 }
