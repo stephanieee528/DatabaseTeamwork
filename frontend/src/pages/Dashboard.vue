@@ -13,6 +13,10 @@
             <el-button @click="handleSearch" icon="Search" />
           </template>
         </el-input>
+        <!-- 新增个人信息按钮 -->
+        <el-button type="text" @click="goToProfile">
+          个人中心
+        </el-button>
       </div>
     </header>
 
@@ -87,6 +91,7 @@ import { WarningFilled } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { getChartsData } from '@/api';
 
+
 // 年份范围
 const years = [2016, 2017, 2018, 2019, 2020];
 const currentYear = ref(2020);
@@ -116,6 +121,11 @@ const delistingTrendData = ref({
   years: [2016, 2017, 2018, 2019, 2020],
   data: [120, 180, 220, 150, 832] // 每年摘帽县数量（832为总贫困县数）
 });
+
+// 个人主页跳转
+const goToProfile = () => {
+  router.push('/profile');
+};
 
 // 图表数据
 const chartsData = ref({});

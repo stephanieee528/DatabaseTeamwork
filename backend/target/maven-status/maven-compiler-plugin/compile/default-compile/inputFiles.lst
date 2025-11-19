@@ -16,6 +16,7 @@ C:\Users\USER\DatabaseTeamwork\backend\src\main\java\com\example\poverty\model\P
 C:\Users\USER\DatabaseTeamwork\backend\src\main\java\com\example\poverty\model\SysUser.java
 C:\Users\USER\DatabaseTeamwork\backend\src\main\java\com\example\poverty\repository\AlertEventRepository.java
 C:\Users\USER\DatabaseTeamwork\backend\src\main\java\com\example\poverty\model\Province.java
+C:\Users\USER\DatabaseTeamwork\backend\src\main\java\com\example\poverty\config\DataInitializer.java
 C:\Users\USER\DatabaseTeamwork\backend\src\main\java\com\example\poverty\service\DashboardService.java
 C:\Users\USER\DatabaseTeamwork\backend\src\main\java\com\example\poverty\controller\AlertController.java
 C:\Users\USER\DatabaseTeamwork\backend\src\main\java\com\example\poverty\controller\AuthController.java

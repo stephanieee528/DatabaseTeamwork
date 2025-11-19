@@ -26,7 +26,12 @@
             <option value="数据分析师">数据分析师</option>
           </select>
         </div>
-        <button type="submit" class="btn">注册</button>
+        <button type="submit" class="btn" :disabled="loading">
+          {{ loading ? '注册中...' : '注册' }}
+        </button>
+        <p class="login-link">
+          已有账号？<a @click="goToLogin">点击登录</a>
+        </p>
       </form>
     </div>
   </div>
@@ -34,23 +39,86 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { registerUser } from '@/api';
+import { ElMessage } from 'element-plus';
+
+const router = useRouter();
 
 const username = ref('');
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const role = ref('普通用户');
+const loading = ref(false);
 
-const handleRegister = () => {
+const handleRegister = async () => {
+  // 表单验证
   if (password.value !== confirmPassword.value) {
-    alert('两次输入的密码不一致！');
+    ElMessage.error('两次输入的密码不一致！');
     return;
   }
-  alert(`注册成功！用户名：${username.value}，邮箱：${email.value}，角色：${role.value}`);
+
+  if (password.value.length < 6) {
+    ElMessage.error('密码长度不能少于6位！');
+    return;
+  }
+
+  loading.value = true;
+
+  try {
+    const response = await registerUser({
+      username: username.value,
+      password: password.value,
+      email: email.value,
+      role: role.value,
+      fullname: username.value
+    });
+
+    // 检查响应是否成功
+    if (response.data && response.data.success) {
+      ElMessage.success(response.data.message || '注册成功！');
+      // 注册成功后跳转到登录页面
+      setTimeout(() => {
+        router.push('/login');
+      }, 1500);
+    } else {
+      // 如果后端返回了成功字段但为false
+      ElMessage.error(response.data?.message || '注册失败');
+    }
+    
+  } catch (error) {
+    console.error('Registration failed:', error);
+    
+    // 更详细的错误处理
+    if (error.response) {
+      // 服务器返回了错误状态码
+      const errorData = error.response.data;
+      if (errorData && errorData.message) {
+        ElMessage.error(errorData.message);
+      } else {
+        ElMessage.error(`注册失败: ${error.response.status} ${error.response.statusText}`);
+      }
+    } else if (error.request) {
+      // 请求发送了但没有收到响应
+      ElMessage.error('网络错误，请检查网络连接');
+    } else {
+      // 其他错误
+      ElMessage.error('注册失败，请稍后重试');
+    }
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 跳转到登录页面
+const goToLogin = () => {
+  router.push('/login');
 };
 </script>
 
 <style scoped>
+/* 保持原有样式不变 */
 .register {
   display: flex;
   justify-content: center;
@@ -121,8 +189,31 @@ const handleRegister = () => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.btn:hover {
+.btn:hover:not(:disabled) {
   transform: translateY(-3px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 15px;
+  color: #4a5568;
+}
+
+.login-link a {
+  color: #3182ce;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
 }
 </style>

@@ -7,17 +7,19 @@ import Login from '@/pages/Login.vue';
 import Users from '@/pages/Users.vue';
 import Dashboard from '@/pages/Dashboard.vue';
 import Profile from '@/pages/Profile.vue';
+import Register from '@/pages/Register.vue';
 
 const routes = [
-  { path: '/home', component: Home },
-  { path: '/county', component: County },
-  { path: '/analysis', component: Analysis },
-  { path: '/alerts', component: Alerts },
-  { path: '/login', component: Login },
-  { path: '/users', component: Users },
-  { path: '/dashboard', component: Dashboard },
-  { path: '/', redirect: '/home' },
+  { path: '/home', component: Home, meta: { requiresAuth: false } },
+  { path: '/county', component: County, meta: { requiresAuth: true } },
+  { path: '/analysis', component: Analysis, meta: { requiresAuth: true } },
+  { path: '/alerts', component: Alerts, meta: { requiresAuth: true } },
+  { path: '/login', component: Login, meta: { requiresAuth: false } },
+  { path: '/users', component: Users, meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } },
   { path: '/profile', component: Profile, meta: { requiresAuth: true } },
+  { path: '/register', component: Register, meta: { requiresAuth: false } },
+  { path: '/', redirect: '/home' },
 ];
 
 const router = createRouter({
@@ -27,17 +29,30 @@ const router = createRouter({
 
 export default router;
 
-// 增强路由守卫
+// 路由守卫
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   
-  if (requiresAuth && !token) {
+  // 检查是否需要认证
+  if (to.meta.requiresAuth && !token) {
     next('/login');
-  } else if (to.path === '/login' && token) {
-    // 已登录用户访问登录页自动跳转到首页
-    next('/');
-  } else {
-    next();
+    return;
   }
+  
+  // 检查是否需要管理员权限
+  if (to.meta.requiresAdmin && token) {
+    // 这里可以添加管理员权限检查逻辑
+    // 暂时允许所有登录用户访问
+    next();
+    return;
+  }
+  
+  // 已登录用户访问登录/注册页时跳转到首页
+  if ((to.path === '/login' || to.path === '/register') && token) {
+    next('/home');
+    return;
+  }
+  
+  next();
 });
+

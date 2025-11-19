@@ -1,7 +1,9 @@
 com\example\poverty\controller\AlertController.class
 com\example\poverty\model\AlertEvent.class
 com\example\poverty\controller\AuthController.class
+com\example\poverty\controller\UserController$UserUpdateRequest.class
 com\example\poverty\model\AlertRule.class
+com\example\poverty\controller\UserController$RegisterRequest.class
 com\example\poverty\controller\UserController.class
 com\example\poverty\model\PovertyCounty.class
 com\example\poverty\config\SecurityConfig.class
@@ -13,15 +15,16 @@ com\example\poverty\service\DashboardService.class
 com\example\poverty\service\AlertScannerService.class
 com\example\poverty\model\AuditLog.class
 com\example\poverty\model\Province.class
+com\example\poverty\model\Role$RoleBuilder.class
 com\example\poverty\controller\DashboardController.class
 com\example\poverty\repository\SysUserRepository.class
+com\example\poverty\config\DataInitializer.class
 com\example\poverty\repository\AlertRuleRepository.class
 com\example\poverty\controller\UserController$SysUserDTO.class
 com\example\poverty\model\SysUser.class
 com\example\poverty\repository\PovertyCountyRepository.class
 com\example\poverty\repository\RoleRepository.class
 com\example\poverty\repository\EconomicIndicatorRepository.class
-com\example\poverty\controller\AuthController$LoginResponse.class
 com\example\poverty\controller\AuthController$LoginRequest.class
 com\example\poverty\model\Role.class
 com\example\poverty\controller\CountyController.class
