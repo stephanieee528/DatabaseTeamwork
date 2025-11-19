@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
@@ -16,6 +17,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
@@ -23,7 +29,7 @@ public class SecurityConfig {
                         // 公开访问的接口
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users/register").permitAll()
-                        .requestMatchers("/api/users/debug/**").permitAll() // 调试接口公开
+                        .requestMatchers("/api/users/debug/**").permitAll()
                         
                         // 需要认证的接口
                         .requestMatchers("/api/users/current").authenticated()
@@ -33,6 +39,8 @@ public class SecurityConfig {
                         // 其他请求
                         .anyRequest().permitAll()
                 )
+                // 添加JWT过滤器
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable());
 

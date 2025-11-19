@@ -23,4 +23,5 @@ C:\Users\USER\DatabaseTeamwork\backend\src\main\java\com\example\poverty\control
 C:\Users\USER\DatabaseTeamwork\backend\src\main\java\com\example\poverty\PovertyDashboardApplication.java
 C:\Users\USER\DatabaseTeamwork\backend\src\main\java\com\example\poverty\repository\EconomicIndicatorRepository.java
 C:\Users\USER\DatabaseTeamwork\backend\src\main\java\com\example\poverty\config\SecurityConfig.java
+C:\Users\USER\DatabaseTeamwork\backend\src\main\java\com\example\poverty\config\JwtAuthenticationFilter.java
 C:\Users\USER\DatabaseTeamwork\backend\src\main\java\com\example\poverty\model\AlertEvent.java

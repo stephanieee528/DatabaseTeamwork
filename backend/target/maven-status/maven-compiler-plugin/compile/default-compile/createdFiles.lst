@@ -31,4 +31,5 @@ com\example\poverty\controller\CountyController.class
 com\example\poverty\model\AgriculturalOutput.class
 com\example\poverty\controller\AuthController$RegisterRequest.class
 com\example\poverty\PovertyDashboardApplication.class
+com\example\poverty\config\JwtAuthenticationFilter.class
 com\example\poverty\repository\AlertEventRepository.class
