@@ -50,7 +50,9 @@ const handleLogin = async () => {
     }
     
     ElMessage.success('登录成功！');
-    router.push('/home');
+    //router.push('/home');
+    window.location.href = '/home';
+
     
   } catch (error) {
     console.error('Login failed:', error);

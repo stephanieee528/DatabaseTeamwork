@@ -57,7 +57,7 @@ export const registerUser = (userData: {
   role: string;
   fullname?: string;
 }) => {
-  return api.post('/users/register', userData);
+  return api.post('/auth/register', userData);
 };
 
 // ----------------------

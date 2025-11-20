@@ -3,7 +3,6 @@ com\example\poverty\model\AlertEvent.class
 com\example\poverty\controller\AuthController.class
 com\example\poverty\controller\UserController$UserUpdateRequest.class
 com\example\poverty\model\AlertRule.class
-com\example\poverty\controller\UserController$RegisterRequest.class
 com\example\poverty\controller\UserController.class
 com\example\poverty\model\PovertyCounty.class
 com\example\poverty\config\SecurityConfig.class

@@ -1,16 +1,12 @@
 package com.example.poverty.controller;
 
 import com.example.poverty.model.SysUser;
-import com.example.poverty.model.Role;
 import com.example.poverty.repository.SysUserRepository;
-import com.example.poverty.repository.RoleRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
@@ -21,57 +17,13 @@ import org.springframework.security.core.Authentication;
 public class UserController {
 
     private final SysUserRepository userRepo;
-    private final RoleRepository roleRepo;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserController(SysUserRepository userRepo, RoleRepository roleRepo, PasswordEncoder passwordEncoder) {
+    public UserController(SysUserRepository userRepo) {
         this.userRepo = userRepo;
-        this.roleRepo = roleRepo;
-        this.passwordEncoder = passwordEncoder;
     }
 
-    // 注册接口
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
-        try {
-            // 检查用户名是否已存在
-            Optional<SysUser> existingUser = userRepo.findByUsername(request.username());
-            if (existingUser.isPresent()) {
-                return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "message", "用户名已存在"
-                ));
-            }
-
-            // 查找角色（默认为普通用户）
-            Role role = roleRepo.findByRoleName(request.role())
-                    .orElse(roleRepo.findByRoleName("普通用户")
-                            .orElseThrow(() -> new RuntimeException("默认角色不存在")));
-
-            // 创建新用户
-            SysUser newUser = SysUser.builder()
-                    .username(request.username())
-                    .passwordHash(passwordEncoder.encode(request.password()))
-                    .email(request.email())
-                    .role(role)
-                    .fullname(request.fullname() != null ? request.fullname() : request.username())
-                    .build();
-
-            userRepo.save(newUser);
-
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "注册成功，请登录"
-            ));
-
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                "success", false,
-                "message", "注册失败: " + e.getMessage()
-            ));
-        }
-    }
-
+    // 删除注册接口，只保留用户管理功能
+    
     @GetMapping
     public ResponseEntity<?> listUsers(Authentication authentication) {
         try {
@@ -217,7 +169,7 @@ public class UserController {
         }
     }
 
-    // DTO 调整为匹配实体类字段
+    // DTO
     public record SysUserDTO(
         Long userId,
         String username,
@@ -225,15 +177,6 @@ public class UserController {
         String email,
         String roleName,
         LocalDateTime registerTime
-    ) {}
-
-    // 注册请求DTO
-    public record RegisterRequest(
-        String username,
-        String password,
-        String email,
-        String role,
-        String fullname
     ) {}
 
     public record UserUpdateRequest(String fullname, String email) {}
