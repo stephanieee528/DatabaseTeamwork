@@ -5,10 +5,9 @@ import Analysis from '@/pages/Analysis.vue';
 import Alerts from '@/pages/Alerts.vue';
 import Login from '@/pages/Login.vue';
 import Users from '@/pages/Users.vue';
-import Dashboard from '@/pages/Dashboard.vue';
+//import Dashboard from '@/pages/Dashboard.vue';
 import Profile from '@/pages/Profile.vue';
 import Register from '@/pages/Register.vue';
-
 const routes = [
   { path: '/home', component: Home, meta: { requiresAuth: false } },
   { path: '/county', component: County, meta: { requiresAuth: true } },
@@ -16,7 +15,7 @@ const routes = [
   { path: '/alerts', component: Alerts, meta: { requiresAuth: true } },
   { path: '/login', component: Login, meta: { requiresAuth: false } },
   { path: '/users', component: Users, meta: { requiresAuth: true, requiresAdmin: true } },
-  { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } },
+  //{ path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } },
   { path: '/profile', component: Profile, meta: { requiresAuth: true } },
   { path: '/register', component: Register, meta: { requiresAuth: false } },
   { path: '/', redirect: '/home' },
