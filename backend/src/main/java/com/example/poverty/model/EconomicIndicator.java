@@ -1,11 +1,13 @@
 package com.example.poverty.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(name = "economic_indicator")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class EconomicIndicator {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

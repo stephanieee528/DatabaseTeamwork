@@ -1,0 +1,9 @@
+﻿{
+    "countyId":  1,
+    "countyName":  "云南省示例县001",
+    "province":  {
+                     "provinceId":  1,
+                     "provinceName":  "云南省"
+                 },
+    "delistingYear":  2018
+}

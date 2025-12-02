@@ -1,11 +1,13 @@
 package com.example.poverty.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(name = "alert_rule")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class AlertRule {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ruleId;
@@ -17,9 +19,8 @@ public class AlertRule {
     private Boolean enabled;
 
     // Explicit getter in case Lombok annotation processing is not active during build
-    public Integer getDurationYears() {
-        return this.durationYears;
-    }
+    public Integer getDurationYears() { return this.durationYears; }
+    public void setDurationYears(Integer durationYears) { this.durationYears = durationYears; }
 
     // Explicit getters/setters to avoid depending on Lombok at compile time
     public Long getRuleId() { return this.ruleId; }

@@ -1,5 +1,6 @@
 package com.example.poverty.config;
 
+import com.example.poverty.security.RoleConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -29,12 +30,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = getTokenFromRequest(request);
             
             if (token != null && validateToken(token)) {
-                String username = getUsernameFromToken(token);
+                Claims claims = parseClaims(token);
+                String username = claims.getSubject();
                 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     // 创建认证令牌
                     UsernamePasswordAuthenticationToken authentication = 
-                        new UsernamePasswordAuthenticationToken(username, null, getAuthoritiesFromToken(token));
+                            new UsernamePasswordAuthenticationToken(username, null, getAuthoritiesFromClaims(claims));
                     
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
@@ -66,18 +68,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    private String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
+    private Claims parseClaims(String token) {
+        return Jwts.parserBuilder()
                 .setSigningKey(jwtSecret)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return claims.getSubject();
     }
 
-    private List<SimpleGrantedAuthority> getAuthoritiesFromToken(String token) {
-        // 这里可以根据需要从token中解析角色信息
-        // 暂时返回一个默认角色
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+    private List<SimpleGrantedAuthority> getAuthoritiesFromClaims(Claims claims) {
+        String authority = claims.get("authority", String.class);
+        if (authority == null || authority.isBlank()) {
+            String roleName = claims.get("role", String.class);
+            authority = RoleConstants.toAuthority(roleName);
+        }
+        if (authority == null || authority.isBlank()) {
+            authority = RoleConstants.AUTHORITY_CITIZEN;
+        }
+        return Collections.singletonList(new SimpleGrantedAuthority(authority));
     }
 }

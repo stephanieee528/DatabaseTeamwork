@@ -1,11 +1,13 @@
 package com.example.poverty.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(name = "province")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Province {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long provinceId;

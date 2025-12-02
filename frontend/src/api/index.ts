@@ -27,6 +27,7 @@ api.interceptors.response.use(
         if (error.response?.status === 401) {
             console.warn('未授权或 token 过期，请重新登录');
             localStorage.removeItem('token');
+            localStorage.removeItem('currentUser');
             // 跳转到登录页
             window.location.href = '/login';
         }
@@ -43,12 +44,19 @@ export const login = (username: string, password: string) => {
         if (token) {
             localStorage.setItem('token', token);
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        }
+        if (res.data?.user) {
+            localStorage.setItem('currentUser', JSON.stringify(res.data.user));
+        } else {
+            localStorage.removeItem('currentUser');
         }
         return res.data;
     });
 };
 
-export const loginUser = (credentials: { username: string; password: string }) => api.post('/auth/login', credentials);
+export const loginUser = (credentials: { username: string; password: string }) =>
+  login(credentials.username, credentials.password);
 
 export const registerUser = (userData: {
   username: string;
@@ -69,8 +77,8 @@ export const registerUser = (userData: {
 export const getSummary = (year?: number) =>
     api.get(`/indicators/summary${year ? '?year=' + year : ''}`);
 
-export const getCounties = (provinceId?: number) =>
-    api.get(`/counties${provinceId ? '?provinceId=' + provinceId : ''}`);
+export const getCounties = (params?: { provinceId?: number; keyword?: string }) =>
+    api.get('/counties', { params });
 
 export const getCountyIndicators = (
     id: number,
@@ -86,10 +94,17 @@ export const getCountyIndicators = (
 export const getAlerts = () => api.get('/alerts');
 
 export const scanAlerts = () => api.post('/alerts/scan');
+export const getAlertScanStatus = () => api.get('/alerts/scan/status');
+
+export const getCountyDetail = (id: number) => api.get(`/counties/${id}/detail`);
 
 export const getRules = () => api.get('/alerts/rules');
 
 export const createRule = (r: any) => api.post('/alerts/rules', r);
+
+export const updateRule = (id: number, payload: any) => api.put(`/alerts/rules/${id}`, payload);
+
+export const deleteRule = (id: number) => api.delete(`/alerts/rules/${id}`);
 
 export const resolveAlertById = (id: number) => api.post(`/alerts/${id}/resolve`);
 
@@ -98,6 +113,20 @@ export const deleteUserById = (id: number) => api.delete(`/users/${id}`);
 export const getUsers = () => api.get('/users');
 
 export const getCurrentUser = () => api.get('/users/current');
+
+export const updateCounty = (id: number, payload: any) => api.put(`/counties/${id}`, payload);
+
+export const getCountyProjects = (id: number) => api.get(`/counties/${id}/projects`);
+
+export const createCountyProject = (id: number, payload: any) => api.post(`/counties/${id}/projects`, payload);
+
+export const updateCountyProject = (id: number, projectId: number, payload: any) =>
+    api.put(`/counties/${id}/projects/${projectId}`, payload);
+
+export const deleteCountyProject = (id: number, projectId: number) =>
+    api.delete(`/counties/${id}/projects/${projectId}`);
+
+export const getProvinces = () => api.get('/counties/provinces');
 
 // ----------------------
 // 获取图表数据接口
@@ -115,12 +144,22 @@ export default {
     getCountyIndicators,
     getAlerts,
     scanAlerts,
+    getAlertScanStatus,
     getRules,
     createRule,
+    updateRule,
+    deleteRule,
     resolveAlertById,
+    getCountyDetail,
     deleteUserById,
     getUsers,
     getChartsData,
     getAnalysisData,
-    getCurrentUser
+    getCurrentUser,
+    updateCounty,
+    getCountyProjects,
+    createCountyProject,
+    updateCountyProject,
+    deleteCountyProject,
+    getProvinces
 };

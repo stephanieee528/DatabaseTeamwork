@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 
 @RestController
@@ -24,6 +25,7 @@ public class UserController {
 
     // 删除注册接口，只保留用户管理功能
     
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<?> listUsers(Authentication authentication) {
         try {
@@ -45,6 +47,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id, Authentication authentication) {
         try {
@@ -91,7 +94,7 @@ public class UserController {
             SysUser user = userRepo.findByUsername(username)
                     .orElseThrow(() -> new RuntimeException("用户不存在"));
 
-            String roleName = user.getRole() != null ? user.getRole().getRoleName() : "普通用户";
+            String roleName = user.getRole() != null ? user.getRole().getRoleName() : "群众";
 
             return ResponseEntity.ok(new SysUserDTO(
                 user.getUserId(),

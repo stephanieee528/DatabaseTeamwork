@@ -1,0 +1,80 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< com.example:poverty-dashboard-backend >----------------
+[INFO] Building poverty-dashboard-backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.1.7:run (default-cli) > test-compile @ poverty-dashboard-backend >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ poverty-dashboard-backend ---
+[WARNING] Using platform encoding (GBK actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] Copying 3 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.10.1:compile (default-compile) @ poverty-dashboard-backend ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 29 source files to C:\Users\86137\Downloads\DatabaseTeamwork-main (2)\DatabaseTeamwork-main\backend\target\classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ poverty-dashboard-backend ---
+[WARNING] Using platform encoding (GBK actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] skip non existing resourceDirectory C:\Users\86137\Downloads\DatabaseTeamwork-main (2)\DatabaseTeamwork-main\backend\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.10.1:testCompile (default-testCompile) @ poverty-dashboard-backend ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] <<< spring-boot:3.1.7:run (default-cli) < test-compile @ poverty-dashboard-backend <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.1.7:run (default-cli) @ poverty-dashboard-backend ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.1.7)
+
+2025-11-29T15:44:53.195+08:00  INFO 19468 --- [           main] c.e.poverty.PovertyDashboardApplication  : Starting PovertyDashboardApplication using Java 17.0.17 with PID 19468 (C:\Users\86137\Downloads\DatabaseTeamwork-main (2)\DatabaseTeamwork-main\backend\target\classes started by 86137 in C:\Users\86137\Downloads\DatabaseTeamwork-main (2)\DatabaseTeamwork-main\backend)
+2025-11-29T15:44:53.198+08:00  INFO 19468 --- [           main] c.e.poverty.PovertyDashboardApplication  : The following 1 profile is active: "dev"
+2025-11-29T15:44:53.828+08:00  INFO 19468 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-29T15:44:53.889+08:00  INFO 19468 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 55 ms. Found 7 JPA repository interfaces.
+2025-11-29T15:44:54.444+08:00  INFO 19468 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2025-11-29T15:44:54.455+08:00  INFO 19468 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-11-29T15:44:54.456+08:00  INFO 19468 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.17]
+2025-11-29T15:44:54.574+08:00  INFO 19468 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-11-29T15:44:54.575+08:00  INFO 19468 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1334 ms
+2025-11-29T15:44:54.598+08:00  INFO 19468 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-11-29T15:44:58.857+08:00  INFO 19468 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn1: url=jdbc:h2:file:./localdb/poverty user=SA
+2025-11-29T15:44:58.865+08:00  INFO 19468 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-11-29T15:44:58.870+08:00  INFO 19468 --- [           main] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:file:./localdb/poverty'
+2025-11-29T15:44:58.944+08:00  INFO 19468 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-11-29T15:44:58.989+08:00  INFO 19468 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.17.Final
+2025-11-29T15:44:58.991+08:00  INFO 19468 --- [           main] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2025-11-29T15:44:59.174+08:00  INFO 19468 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-29T15:44:59.209+08:00  WARN 19468 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-29T15:44:59.729+08:00  INFO 19468 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-11-29T15:44:59.758+08:00  INFO 19468 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-29T15:44:59.869+08:00  WARN 19468 --- [           main] ocalVariableTableParameterNameDiscoverer : Using deprecated '-debug' fallback for parameter name resolution. Compile the affected code with '-parameters' instead or avoid its introspection: com.example.poverty.repository.RoleRepository
+2025-11-29T15:44:59.921+08:00  WARN 19468 --- [           main] ocalVariableTableParameterNameDiscoverer : Using deprecated '-debug' fallback for parameter name resolution. Compile the affected code with '-parameters' instead or avoid its introspection: com.example.poverty.repository.SysUserRepository
+2025-11-29T15:44:59.948+08:00  WARN 19468 --- [           main] ocalVariableTableParameterNameDiscoverer : Using deprecated '-debug' fallback for parameter name resolution. Compile the affected code with '-parameters' instead or avoid its introspection: com.example.poverty.repository.EconomicIndicatorRepository
+2025-11-29T15:44:59.964+08:00  WARN 19468 --- [           main] ocalVariableTableParameterNameDiscoverer : Using deprecated '-debug' fallback for parameter name resolution. Compile the affected code with '-parameters' instead or avoid its introspection: com.example.poverty.repository.PovertyCountyRepository
+2025-11-29T15:45:00.062+08:00  WARN 19468 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-11-29T15:45:00.075+08:00  WARN 19468 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 74308ed2-4fe2-42fb-ac90-6e0ae4fdcdd5
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-11-29T15:45:00.232+08:00  INFO 19468 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@588614f9, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@16718e1b, org.springframework.security.web.context.SecurityContextHolderFilter@32f2de5c, org.springframework.security.web.header.HeaderWriterFilter@1d86b636, org.springframework.security.web.authentication.logout.LogoutFilter@4e3bc13b, com.example.poverty.config.JwtAuthenticationFilter@5a4dda2, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@74120029, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@533690d, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@7fb313e3, org.springframework.security.web.access.ExceptionTranslationFilter@38eafdab, org.springframework.security.web.access.intercept.AuthorizationFilter@117be84a]
+2025-11-29T15:45:00.365+08:00  INFO 19468 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2025-11-29T15:45:00.374+08:00  INFO 19468 --- [           main] c.e.poverty.PovertyDashboardApplication  : Started PovertyDashboardApplication in 7.55 seconds (process running for 7.844)
+? 创建角色: 群众
+? 角色已存在: 数据分析师
+? 角色已存在: 管理员
+? 管理员账号已存在
+? 基础数据初始化完成
+2025-11-29T15:45:15.113+08:00  INFO 19468 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-29T15:45:15.114+08:00  INFO 19468 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-11-29T15:45:15.115+08:00  INFO 19468 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms

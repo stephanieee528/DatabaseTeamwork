@@ -22,7 +22,7 @@
         <div class="form-group">
           <label>用户角色</label>
           <select v-model="role">
-            <option value="普通用户">普通用户</option>
+            <option value="群众">群众</option>
             <option value="数据分析师">数据分析师</option>
           </select>
         </div>
@@ -49,7 +49,7 @@ const username = ref('');
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
-const role = ref('普通用户');
+const role = ref('群众');
 const loading = ref(false);
 
 const handleRegister = async () => {

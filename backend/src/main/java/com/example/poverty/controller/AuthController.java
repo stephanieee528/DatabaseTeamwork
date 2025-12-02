@@ -4,6 +4,7 @@ import com.example.poverty.model.SysUser;
 import com.example.poverty.model.Role;
 import com.example.poverty.repository.SysUserRepository;
 import com.example.poverty.repository.RoleRepository;
+import com.example.poverty.security.RoleConstants;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -58,8 +59,13 @@ public class AuthController {
                 ));
             }
 
+            String roleName = user.getRole() != null ? user.getRole().getRoleName() : RoleConstants.ROLE_CITIZEN_NAME;
+            String authority = RoleConstants.toAuthority(roleName);
+
             String token = Jwts.builder()
                     .setSubject(user.getUsername())
+                    .claim("role", roleName)
+                    .claim("authority", authority)
                     .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                     .signWith(jwtSecret, SignatureAlgorithm.HS256)
                     .compact();
@@ -73,7 +79,8 @@ public class AuthController {
                     "username", user.getUsername(),
                     "fullname", user.getFullname(),
                     "email", user.getEmail(),
-                    "role", user.getRole() != null ? user.getRole().getRoleName() : "普通用户"
+                    "role", roleName,
+                    "authority", authority
                 )
             ));
             
@@ -104,11 +111,11 @@ public class AuthController {
             if (req.role != null && !req.role.trim().isEmpty()) {
                 // 尝试查找前端指定的角色
                 role = roleRepo.findByRoleName(req.role)
-                        .orElse(roleRepo.findByRoleName("普通用户")
+                        .orElse(roleRepo.findByRoleName(RoleConstants.ROLE_CITIZEN_NAME)
                                 .orElseGet(() -> createDefaultRole()));
             } else {
                 // 如果没有指定角色，使用默认角色
-                role = roleRepo.findByRoleName("普通用户")
+                role = roleRepo.findByRoleName(RoleConstants.ROLE_CITIZEN_NAME)
                         .orElseGet(() -> createDefaultRole());
             }
 
@@ -140,7 +147,7 @@ public class AuthController {
     // 创建默认角色的方法
     private Role createDefaultRole() {
         Role defaultRole = Role.builder()
-                .roleName("普通用户")
+                .roleName(RoleConstants.ROLE_CITIZEN_NAME)
                 .build();
         return roleRepo.save(defaultRole);
     }

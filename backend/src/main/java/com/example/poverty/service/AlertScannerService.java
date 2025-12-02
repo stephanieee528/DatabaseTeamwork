@@ -2,6 +2,9 @@ package com.example.poverty.service;
 
 import com.example.poverty.model.*;
 import com.example.poverty.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,27 +14,54 @@ import java.util.List;
 @Service
 public class AlertScannerService {
 
+    private static final Logger log = LoggerFactory.getLogger(AlertScannerService.class);
+
     private final AlertRuleRepository ruleRepo;
     private final EconomicIndicatorRepository indicatorRepo;
     private final AlertEventRepository eventRepo;
     private final PovertyCountyRepository countyRepo;
 
+    private final AlertScanMonitor scanMonitor;
+
     public AlertScannerService(AlertRuleRepository ruleRepo, EconomicIndicatorRepository indicatorRepo,
-                               AlertEventRepository eventRepo, PovertyCountyRepository countyRepo) {
+                               AlertEventRepository eventRepo, PovertyCountyRepository countyRepo,
+                               AlertScanMonitor scanMonitor) {
         this.ruleRepo = ruleRepo;
         this.indicatorRepo = indicatorRepo;
         this.eventRepo = eventRepo;
         this.countyRepo = countyRepo;
+        this.scanMonitor = scanMonitor;
     }
 
     @Transactional
     public void scanAllRules() {
+        runScan();
+    }
+
+    @Async("alertScanExecutor")
+    @Transactional
+    public void scanAllRulesAsync() {
+        runScan();
+    }
+
+    protected void runScan() {
+        scanMonitor.markStarted();
+        long start = System.currentTimeMillis();
+        try {
         List<AlertRule> rules = ruleRepo.findByEnabledTrue();
-        for (AlertRule r : rules) {
             List<PovertyCounty> all = countyRepo.findAll();
+            for (AlertRule r : rules) {
             for (PovertyCounty c : all) {
                 evaluateRuleForCounty(r, c);
             }
+            }
+            long duration = System.currentTimeMillis() - start;
+            scanMonitor.markCompleted(duration);
+            log.info("Alert scan finished in {} ms", duration);
+        } catch (Exception ex) {
+            scanMonitor.markFailed(ex.getMessage());
+            log.error("Alert scan failed", ex);
+            throw ex;
         }
     }
 

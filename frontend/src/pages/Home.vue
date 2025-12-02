@@ -22,16 +22,34 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { getSummary } from '@/api';
 import * as echarts from 'echarts';
 import axios from 'axios';
 
+const router = useRouter();
 const stats = ref([
   { label: '贫困县总数', value: '加载中...' },
   { label: '已脱贫县数', value: '加载中...' },
   { label: '扶贫覆盖率', value: '加载中...' },
   { label: '扶贫资金投入', value: '加载中...' },
 ]);
+let summaryRetries = 0;
+
+const formatCount = (value) => {
+  if (value === null || value === undefined) return '暂无数据';
+  return `${Intl.NumberFormat('zh-CN').format(value)} 个`;
+};
+
+const formatPercent = (value) => {
+  if (value === null || value === undefined) return '暂无数据';
+  return `${Number(value).toFixed(1)}%`;
+};
+
+const formatCurrency = (value) => {
+  if (value === null || value === undefined) return '暂无数据';
+  return `${Number(value).toFixed(1)} 亿元`;
+};
 
 let myChart = null;
 
@@ -249,7 +267,10 @@ const initEcharts = () => {
       const provinceData = povertyData.find(p => p.name === provinceName);
       if (provinceData) {
         console.log(`点击了 ${provinceName}，贫困县数量: ${provinceData.value}个`);
-        // 可以在这里添加更详细的弹窗或跳转逻辑
+        router.push({
+          path: '/county',
+          query: { province: provinceName },
+        });
       }
     }
   });
@@ -356,18 +377,24 @@ const loadData = async () => {
     const data = response.data;
 
     stats.value = [
-      { label: '贫困县总数', value: data.totalCounties || '832' },
-      { label: '已脱贫县数', value: data.delistedCounties || '780' },
-      { label: '扶贫覆盖率', value: `${data.coverageRate || '93.8'}%` },
-      { label: '扶贫资金投入', value: `${data.funding || '156.8'}亿元` },
+      { label: '贫困县总数', value: formatCount(data.totalCounties) },
+      { label: '已脱贫县数', value: formatCount(data.delistedCounties) },
+      { label: '扶贫覆盖率', value: formatPercent(data.coverageRate) },
+      { label: '扶贫资金投入', value: formatCurrency(data.funding) },
     ];
+    summaryRetries = 0;
   } catch (error) {
     console.error('Failed to load data:', error);
+    if (error?.response?.status === 401 && summaryRetries < 3 && localStorage.getItem('token')) {
+      summaryRetries += 1;
+      setTimeout(loadData, 600);
+      return;
+    }
     stats.value = [
-      { label: '贫困县总数', value: '832' },
-      { label: '已脱贫县数', value: '780' },
+      { label: '贫困县总数', value: '832 个' },
+      { label: '已脱贫县数', value: '780 个' },
       { label: '扶贫覆盖率', value: '93.8%' },
-      { label: '扶贫资金投入', value: '156.8亿元' },
+      { label: '扶贫资金投入', value: '156.8 亿元' },
     ];
   }
 };

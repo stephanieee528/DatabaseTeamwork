@@ -23,7 +23,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { loginUser } from '@/api';
+import { login } from '@/api';
 import { ElMessage } from 'element-plus';
 import axios from 'axios'; // 添加这行导入
 const username = ref('');
@@ -36,17 +36,15 @@ const handleLogin = async () => {
   loading.value = true;
   
   try {
-    const response = await loginUser({ 
-      username: username.value, 
-      password: password.value 
-    });
+    const data = await login(username.value, password.value);
     
-    // 保存 Token 到本地存储
-    const token = response.data.token;
+    const token = data.token;
     if (token) {
       localStorage.setItem('token', token);
-      // 设置全局 axios 请求头
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+    if (data.user) {
+      localStorage.setItem('currentUser', JSON.stringify(data.user));
     }
     
     ElMessage.success('登录成功！');

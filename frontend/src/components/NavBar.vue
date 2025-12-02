@@ -14,14 +14,14 @@
               县详情
             </router-link>
           </li>
-          <li>
+          <li v-if="canViewAnalysis">
             <router-link to="/analysis" class="nav-link" :class="{ active: $route.path === '/analysis' }">
               数据分析
             </router-link>
           </li>
-          <li>
+          <li v-if="canManageAlerts">
             <router-link to="/alerts" class="nav-link" :class="{ active: $route.path === '/alerts' }">
-              警报管理
+              警告管理
             </router-link>
           </li>
           
@@ -43,7 +43,7 @@
           </li>
           
           <!-- 管理员可见的用户管理 -->
-          <li v-if="isLoggedIn && userRole === '管理员'">
+          <li v-if="canManageUsers">
             <router-link to="/users" class="nav-link" :class="{ active: $route.path === '/users' }">
               用户管理
             </router-link>
@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { getCurrentUser } from '@/api';
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -69,23 +69,59 @@ const route = useRoute();
 const isLoggedIn = ref(!!localStorage.getItem('token'));
 const userRole = ref('');
 const currentUser = ref('');
+const canViewAnalysis = computed(() => isLoggedIn.value && ['群众', '数据分析师', '管理员'].includes(userRole.value));
+const canManageUsers = computed(() => isLoggedIn.value && userRole.value === '管理员');
+const canManageAlerts = computed(() => isLoggedIn.value && userRole.value === '管理员');
 
 // 检查登录状态
+const applyUserProfile = (payload) => {
+  if (!payload) return;
+  currentUser.value = payload.fullname || payload.username || '';
+  userRole.value = payload.roleName || payload.role || '';
+};
+
+const restoreUserFromCache = () => {
+  const cached = localStorage.getItem('currentUser');
+  if (!cached) return false;
+  try {
+    const parsed = JSON.parse(cached);
+    applyUserProfile(parsed);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 const checkLoginStatus = () => {
   isLoggedIn.value = !!localStorage.getItem('token');
   if (isLoggedIn.value) {
     loadUserInfo();
+  } else {
+    currentUser.value = '';
+    userRole.value = '';
+    localStorage.removeItem('currentUser');
   }
 };
 
 // 加载用户信息
 const loadUserInfo = async () => {
+  const hadCache = restoreUserFromCache();
   try {
     const response = await getCurrentUser();
     const userData = response.data;
-    currentUser.value = userData.fullname || userData.username;
-    userRole.value = userData.roleName || '用户';
+    const payload = {
+      username: userData.username,
+      fullname: userData.fullname || userData.username,
+      role: userData.roleName || userData.role || '',
+      roleName: userData.roleName || userData.role || ''
+    };
+    localStorage.setItem('currentUser', JSON.stringify(payload));
+    applyUserProfile(payload);
   } catch (error) {
+    if (!hadCache) {
+      currentUser.value = '';
+      userRole.value = '';
+    }
     console.error('获取用户信息失败:', error);
   }
 };
@@ -103,7 +139,8 @@ const handleLogout = async () => {
     isLoggedIn.value = false;
     currentUser.value = '';
     userRole.value = '';
-    
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
     // 清除全局请求头中的token
     delete axios.defaults.headers.common['Authorization'];
     
@@ -121,6 +158,9 @@ const handleLogout = async () => {
 const handleStorageChange = (event) => {
   if (event.key === 'token') {
     checkLoginStatus();
+  }
+  if (event.key === 'currentUser' && event.newValue) {
+    restoreUserFromCache();
   }
 };
 
